@@ -10,39 +10,39 @@ import (
 )
 
 type URLHandler struct {
-	svc *service.URLService
+	urlService *service.URLService
 }
 
-func NewURLHandler(svc *service.URLService) *URLHandler {
-	return &URLHandler{svc: svc}
+func NewURLHandler(urlService *service.URLService) *URLHandler {
+	return &URLHandler{urlService: urlService}
 }
 
-func (h *URLHandler) Register(rg *gin.RouterGroup) {
+func (handler *URLHandler) Register(rg *gin.RouterGroup) {
 	urls := rg.Group("/urls")
-	urls.POST("/shorten", h.Shorten)
-	urls.GET("/:code", h.Resolve)
+	urls.POST("/shorten", handler.Shorten)
+	urls.GET("/:code", handler.Resolve)
 }
 
-func (h *URLHandler) Shorten(c *gin.Context) {
+func (handler *URLHandler) Shorten(context *gin.Context) {
 	var req dto.ShortenRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := context.ShouldBindJSON(&req); err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	u, err := h.svc.Shorten(req.URL)
+	shortenUrl, err := handler.urlService.Shorten(req.URL)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		context.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, dto.ShortenResponse{Code: u.Code})
+	context.JSON(http.StatusCreated, dto.ShortenResponse{Code: shortenUrl.Code})
 }
 
-func (h *URLHandler) Resolve(c *gin.Context) {
-	code := c.Param("code")
-	u, err := h.svc.Resolve(code)
-	if err != nil || u == nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+func (handler *URLHandler) Resolve(context *gin.Context) {
+	code := context.Param("code")
+	url, err := handler.urlService.Resolve(code)
+	if err != nil || url == nil {
+		context.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 		return
 	}
-	c.Redirect(http.StatusFound, u.Original)
+	context.Redirect(http.StatusFound, url.Original)
 }

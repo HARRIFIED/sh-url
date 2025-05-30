@@ -12,23 +12,23 @@ type URLService struct {
 	repo domain.URLRepository
 }
 
-func NewURLService(r domain.URLRepository) *URLService {
-	return &URLService{repo: r}
+func NewURLService(repo domain.URLRepository) *URLService {
+	return &URLService{repo: repo}
 }
 
 // Shorten generates a code, stores and returns the shortened URL
-func (s *URLService) Shorten(original string) (*domain.URL, error) {
+func (service *URLService) Shorten(original string) (*domain.URL, error) {
 	// generate deterministic code
-	h := sha1.Sum([]byte(original + fmt.Sprint(time.Now().UnixNano())))
-	code := fmt.Sprintf("%x", h)[:8]
-	u := &domain.URL{Code: code, Original: original}
+	generated := sha1.Sum([]byte(original + fmt.Sprint(time.Now().UnixNano())))
+	code := fmt.Sprintf("%x", generated)[:8]
+	url := &domain.URL{Code: code, Original: original}
 
-	if err := s.repo.Create(u); err != nil {
+	if err := service.repo.Create(url); err != nil {
 		return nil, err
 	}
-	return u, nil
+	return url, nil
 }
 
-func (s *URLService) Resolve(code string) (*domain.URL, error) {
-	return s.repo.FindByCode(code)
+func (service *URLService) Resolve(code string) (*domain.URL, error) {
+	return service.repo.FindByCode(code)
 }
