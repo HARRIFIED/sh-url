@@ -1,7 +1,10 @@
 package config
 
 import (
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -10,9 +13,15 @@ type Config struct {
 }
 
 func Load() *Config {
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Println("Error loading .env file, using default values")
+	}
+
 	return &Config{
 		Port:        getEnv("PORT", ":8080"),
-		DatabaseURL: getEnv("DATABASE_URL", "postgres://user:pass@localhost:5433/shortener?sslmode=disable"),
+		DatabaseURL: getEnv("DATABASE_URL", ""),
 	}
 }
 
