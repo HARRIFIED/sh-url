@@ -63,7 +63,7 @@ Check .env.example for required envs, then create a .env and add them
 ```
 ### Redirect
 
-**GET** /<code>
+**GET** /{code}
 
 Redirects to the original long URL on the browser.
 
