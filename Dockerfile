@@ -33,16 +33,19 @@ FROM alpine:latest
 # Install ca-certificates for HTTPS requests (if needed)
 RUN apk --no-cache add ca-certificates
 
-WORKDIR /root/
+WORKDIR /app
 
 # Copy the binary from the builder stage
 COPY --from=builder /app/url-shortener-go .
 
+# Copy the templates directory from the builder stage
+COPY --from=builder /app/templates ./templates
+
 # Make sure the binary is executable
 RUN chmod +x ./url-shortener-go
 
-# Verify the binary is in the final image
-RUN ls -lah ./url-shortener-go
+# Verify the binary and templates are in the final image
+RUN ls -lah ./url-shortener-go && ls -lah ./templates/
 
 # Expose the application port
 EXPOSE 8080

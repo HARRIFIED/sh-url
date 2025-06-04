@@ -17,12 +17,6 @@ func NewURLHandler(urlService *service.URLService) *URLHandler {
 	return &URLHandler{urlService: urlService}
 }
 
-func (handler *URLHandler) Register(rg *gin.RouterGroup) {
-	urls := rg.Group("/urls")
-	urls.POST("/shorten", handler.Shorten)
-	urls.GET("/:code", handler.Resolve)
-}
-
 func (handler *URLHandler) Shorten(context *gin.Context) {
 	var req dto.ShortenRequest
 	if err := context.ShouldBindJSON(&req); err != nil {
